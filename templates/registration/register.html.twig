@@ -1,0 +1,519 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Account{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .register-container {
+            width: 100%;
+            max-width: 450px;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .register-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #667eea);
+            background-size: 200% 100%;
+            animation: shimmer 2s linear infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+            font-weight: 700;
+            font-size: 2.2rem;
+            position: relative;
+        }
+
+        .form-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 2px;
+        }
+
+        .form-title i {
+            margin-right: 15px;
+            color: #667eea;
+        }
+
+        /* Flash Messages */
+        .alert {
+            border: none;
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            animation: slideDown 0.3s ease-out;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa8a8 100%);
+            color: white;
+            border-left: 4px solid #f44336;
+        }
+
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-control {
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            padding: 15px 50px 15px 20px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            width: 100%;
+            outline: none;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #667eea;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus + .input-icon {
+            color: #764ba2;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Error Messages */
+        .form-error-message {
+            color: #e74c3c;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group.has-error .form-control {
+            border-color: #e74c3c;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+        }
+
+        /* Checkbox Styling */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .custom-checkbox {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .custom-checkbox input[type="checkbox"] {
+            opacity: 0;
+            position: absolute;
+            width: 0;
+            height: 0;
+        }
+
+        .checkbox-checkmark {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(102, 126, 234, 0.3);
+            border-radius: 4px;
+            margin-right: 12px;
+            position: relative;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-checkmark {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-color: #667eea;
+        }
+
+        .checkbox-checkmark::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .custom-checkbox input[type="checkbox"]:checked + .checkbox-checkmark::after {
+            opacity: 1;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .checkbox-label a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .checkbox-label a:hover {
+            color: #764ba2;
+        }
+
+        /* Submit Button */
+        .btn-register {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            padding: 16px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+            width: 100%;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-register::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-register:hover::before {
+            left: 100%;
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        .footer-text {
+            text-align: center;
+            margin-top: 25px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .footer-text a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .footer-text a:hover {
+            color: #764ba2;
+        }
+
+        /* Floating particles */
+        .particle {
+            position: fixed;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            .register-card {
+                padding: 30px 25px;
+            }
+            
+            .form-title {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* Form wrapper to override Symfony default styling */
+        .symfony-form-wrapper .form-control {
+            display: block;
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            font-size: 1rem;
+            font-weight: 400;
+            line-height: 1.5;
+            color: #212529;
+            background-color: rgba(255, 255, 255, 0.9);
+            background-clip: padding-box;
+            border: 2px solid rgba(102, 126, 234, 0.2);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .symfony-form-wrapper .form-control:focus {
+            color: #212529;
+            background-color: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <!-- Floating particles -->
+    <div class="d-flex align-item-center justify-content-center">
+    <div class="particle" style="left: 20%; top: 20%; width: 60px; height: 60px; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 80%; top: 80%; width: 80px; height: 80px; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 60%; top: 60%; width: 40px; height: 40px; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 10%; top: 10%; width: 50px; height: 50px; animation-delay: 3s;"></div>
+
+    <div class="register-container">
+        <div class="register-card">
+            <h1 class="form-title">
+                <i class="fas fa-user-plus"></i>
+                Create Account
+            </h1>
+
+            <!-- Flash Messages -->
+            {% for flash_error in app.flashes('verify_email_error') %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ flash_error }}
+                </div>
+            {% endfor %}
+
+            <!-- General Form Errors -->
+            {% if not registrationForm.vars.valid %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Please correct the errors below
+                </div>
+            {% endif %}
+
+            <div class="symfony-form-wrapper">
+                {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                    <!-- Email Field -->
+                    <div class="form-group {% if not registrationForm.email.vars.valid %}has-error{% endif %}">
+                        {{ form_label(registrationForm.email, 'Email Address', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-container">
+                            {{ form_widget(registrationForm.email, {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Enter your email address'
+                                }
+                            }) }}
+                            <i class="fas fa-envelope input-icon"></i>
+                        </div>
+                        {{ form_errors(registrationForm.email) }}
+                    </div>
+
+                    <!-- Password Field -->
+                    <div class="form-group {% if not registrationForm.plainPassword.vars.valid %}has-error{% endif %}">
+                        {{ form_label(registrationForm.plainPassword, 'Password', {'label_attr': {'class': 'form-label'}}) }}
+                        <div class="input-container">
+                            {{ form_widget(registrationForm.plainPassword, {
+                                'attr': {
+                                    'class': 'form-control',
+                                    'placeholder': 'Create a strong password'
+                                }
+                            }) }}
+                            <i class="fas fa-lock input-icon"></i>
+                        </div>
+                        {{ form_errors(registrationForm.plainPassword) }}
+                    </div>
+
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn-register">
+                        <i class="fas fa-user-plus"></i>
+                        Create Account
+                    </button>
+                    {{ form_rest(registrationForm) }}
+
+                    {{ form_end(registrationForm) }}
+            </div>
+
+        </div>
+    </div></div>
+
+    <script>
+        // Add focus effects to form inputs
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.closest('.form-group').classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.closest('.form-group').classList.remove('focused');
+            });
+        });
+
+        // Enhanced form validation feedback
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const button = form.querySelector('.btn-register');
+                const buttonText = button.querySelector('i').nextSibling;
+                
+                // Add loading state
+                button.disabled = true;
+                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                
+                // Reset after 3 seconds if form doesn't submit
+                setTimeout(() => {
+                    if (button.disabled) {
+                        button.disabled = false;
+                        button.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+                    }
+                }, 3000);
+            });
+        }
+
+        // Animate particles
+        function animateParticles() {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                const randomX = Math.random() * 100;
+                const randomY = Math.random() * 100;
+                particle.style.left = randomX + '%';
+                particle.style.top = randomY + '%';
+            });
+        }
+
+        setInterval(animateParticles, 8000);
+    </script>
+{% endblock %}
